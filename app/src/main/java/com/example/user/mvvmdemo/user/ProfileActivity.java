@@ -40,14 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         UserProfileViewModel viewModel = ViewModelProviders.of(this, viewModelFactory).get(UserProfileViewModel.class);
-        viewModel.init(16,"ff3c81cc8a9d683a1f59e6278ec0d3b7");
-
-//        viewModel.getProfile().observe(this, new Observer<ApiResponse<User>>() {
-//            @Override
-//            public void onChanged(@Nullable ApiResponse<User> userApiResponse) {
-//                updateUI(userApiResponse);
-//            }
-//        });
+        viewModel.init(16,getString(R.string.key));
         viewModel.getProfile().observe(this, new Observer<Resource<User>>() {
             @Override
             public void onChanged(@Nullable Resource<User> userResource) {
@@ -57,30 +50,22 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
      private void updateUI(@Nullable Resource<User> response){
-         ProgressDialog pd = new ProgressDialog(this);
             switch (response.status)
             {
-                case LOADING:
-//                    pd.setMessage("Please Wait");
-//                    pd.show();
-                case SUCCESS:
-                  //  pd.hide();
-                    if(null == response.data)
-                        return;
 
+                case SUCCESS:
                     if(!response.data.getDetail().getImage().isEmpty())
                     Picasso
                             .get()
                             .load(response.data.getDetail().getImage())
-                            .resize(90,90)
-                            .placeholder(R.drawable.thumbnail)
+                            .resize(120,120)
+                            .placeholder(R.drawable.placeholder)
+                            .centerCrop()
                             .into(iv);
                     tv.setText(response.data.getDetail().getName());
                     break;
                 case ERROR:
-                  //  pd.hide();
                     Toast.makeText(this, response.message, Toast.LENGTH_SHORT).show();
-                    Log.d("TAG",response.message);
                     break;
 
             }

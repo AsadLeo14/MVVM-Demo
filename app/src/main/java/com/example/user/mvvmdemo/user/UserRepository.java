@@ -9,6 +9,9 @@ import com.example.user.mvvmdemo.network.NetworkBoundResource;
 import com.example.user.mvvmdemo.network.Resource;
 import com.example.user.mvvmdemo.network.Webservice;
 import com.example.user.mvvmdemo.util.AppExecutors;
+import com.example.user.mvvmdemo.util.RateLimiter;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,11 +19,13 @@ import javax.inject.Singleton;
 @Singleton
 public class UserRepository {
 
-    private static int FRESH_TIMEOUT = 3;
 
     private final Webservice webservice;
     private final UserDao userDao;
     private final AppExecutors appExecutors;
+
+    private RateLimiter<String> repoListRateLimit = new RateLimiter<>(10, TimeUnit.MINUTES);
+
 
     @Inject
     public UserRepository(Webservice webservice, UserDao userDao, AppExecutors appExecutors) {
@@ -29,46 +34,7 @@ public class UserRepository {
         this.appExecutors = appExecutors;
     }
 
-    public LiveData<Resource<User>> getUser(int userId, String sessionId) {
-       // MediatorLiveData can observe other LiveData objects (sources) and react to their onChange events.
-//        final MediatorLiveData data = new MediatorLiveData<>();
-//
-//        data.setValue(Resource.<User>loading(null));
-//
-//       webservice.getUserProfile(userId,sessionId).enqueue(new Callback<User>() {
-//           @Override
-//           public void onResponse(Call<User> call, Response<User> response) {
-//               if(response.body().getStatus())
-//               data.setValue(Resource.success(response.body()));
-//               else  data.setValue(Resource.<User>error(response.body().getMessage(),null));
-//           }
-//
-//           @Override
-//           public void onFailure(Call<User> call, Throwable t) {
-//               data.setValue(Resource.<User>error(t.getLocalizedMessage(),null));
-//           }
-//       });
-//        return data;
-         return loadUser(userId,sessionId);
-    }
-
-//    private void refreshUser(int userId,String sessionId) {
-//        executor.execute(() -> {
-//            // running in a background thread
-//            // check if user was fetched recently
-//            boolean userExists = userDao.hasUser(FRESH_TIMEOUT);
-//            if (!userExists) {
-//                // refresh the data
-//                Response response = webservice.getUser(userId).execute();
-//                // TODO check for error etc.
-//                // Update the database.The LiveData will automatically refresh so
-//                // we don't need to do anything else here besides updating the database
-//                userDao.save(response.body());
-//            }
-//        });
-//    }
-
-    public LiveData<Resource<User>> loadUser(final int userId, final String sessionId) {
+    public LiveData<Resource<User>> getUser(final int userId, final String sessionId) {
         return new NetworkBoundResource<User,User>(appExecutors) {
             @Override
             protected void saveCallResult(@NonNull User item) {
@@ -78,7 +44,7 @@ public class UserRepository {
 
             @Override
             protected boolean shouldFetch(@Nullable User data) {
-                return data == null;
+                return data == null || repoListRateLimit.shouldFetch("user");
             }
 
             @NonNull
