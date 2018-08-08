@@ -1,1 +1,1 @@
-A demo app following google Guide to App Architecture.
+A demo app following [Guide to App Architecture](https://developer.android.com/jetpack/docs/guide)
