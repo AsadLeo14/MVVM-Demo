@@ -17,14 +17,14 @@ public class UserProfileViewModel extends ViewModel {
         this.userRepo = userRepo;
     }
 
-    public void init(int userId, String sessionId) {
-//        if (this.user != null) {
-//            // ViewModel is created per Fragment so
-//            // we know the userId won't change
-//            return;
-//        }
+    public void init(String userId) {
+        if (this.user != null) {
+            // ViewModel is created per Fragment so
+            // we know the userId won't change
+            return;
+        }
 
-        user = userRepo.getUser(userId,sessionId);
+        user = userRepo.getUser(userId);
     }
 
     public LiveData<Resource<User>> getProfile() {

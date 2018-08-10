@@ -1,13 +1,11 @@
 package com.example.user.mvvmdemo.user;
 
-import android.app.ProgressDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,7 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         UserProfileViewModel viewModel = ViewModelProviders.of(this, viewModelFactory).get(UserProfileViewModel.class);
-        viewModel.init(16,getString(R.string.key));
+        viewModel.init(getString(R.string.user_id));
         viewModel.getProfile().observe(this, new Observer<Resource<User>>() {
             @Override
             public void onChanged(@Nullable Resource<User> userResource) {
@@ -54,15 +52,14 @@ public class ProfileActivity extends AppCompatActivity {
             {
 
                 case SUCCESS:
-                    if(!response.data.getDetail().getImage().isEmpty())
                     Picasso
                             .get()
-                            .load(response.data.getDetail().getImage())
+                            .load(response.data.getUserImage())
                             .resize(120,120)
                             .placeholder(R.drawable.placeholder)
                             .centerCrop()
                             .into(iv);
-                    tv.setText(response.data.getDetail().getName());
+                    tv.setText(response.data.getUserName());
                     break;
                 case ERROR:
                     Toast.makeText(this, response.message, Toast.LENGTH_SHORT).show();

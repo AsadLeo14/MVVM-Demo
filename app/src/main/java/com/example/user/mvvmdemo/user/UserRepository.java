@@ -24,7 +24,7 @@ public class UserRepository {
     private final UserDao userDao;
     private final AppExecutors appExecutors;
 
-    private RateLimiter<String> repoListRateLimit = new RateLimiter<>(10, TimeUnit.MINUTES);
+    private RateLimiter<String> repoListRateLimit = new RateLimiter<>(2, TimeUnit.MINUTES);
 
 
     @Inject
@@ -34,11 +34,10 @@ public class UserRepository {
         this.appExecutors = appExecutors;
     }
 
-    public LiveData<Resource<User>> getUser(final int userId, final String sessionId) {
+    public LiveData<Resource<User>> getUser(final String userId) {
         return new NetworkBoundResource<User,User>(appExecutors) {
             @Override
             protected void saveCallResult(@NonNull User item) {
-                item.setTimeStamp("9999-12-31 23:59:59");
                 userDao.save(item);
             }
 
@@ -56,7 +55,7 @@ public class UserRepository {
             @NonNull
             @Override
             protected LiveData<ApiResponse<User>> createCall() {
-                return webservice.getMyProfile(userId,sessionId);
+                return webservice.getMyProfile(userId);
             }
         }.asLiveData();
     }

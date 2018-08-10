@@ -28,7 +28,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AppModule {
 
 
-    private String BASE_URL = "http://softwares-tools.com/projects/sell_outfit/";
+    private String BASE_URL = "https://customproject-6a04e.firebaseio.com/";
 
     // --- DATABASE INJECTION ---
 
